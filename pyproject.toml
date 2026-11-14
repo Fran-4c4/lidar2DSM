@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lidar2dsm"
+version = "0.1.0"
+description = "Local LAS/LAZ to aligned DTM, DSM and nDSM GeoTIFFs"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+  "numpy>=2.2,<3", "scipy>=1.15,<2", "rasterio>=1.4,<2",
+  "laspy[lazrs]>=2.7,<3", "pyproj>=3.7,<4"
+]
+
+[project.optional-dependencies]
+test = ["pytest>=9,<10"]
+
+[project.scripts]
+lidar2dsm = "lidar2dsm.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

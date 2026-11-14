@@ -1,0 +1,8 @@
+# Direct dependencies verified on Python 3.12; native wheels keep their own licenses.
+numpy==2.5.4
+scipy==1.18.1
+rasterio==1.5.2
+laspy==2.7.0
+lazrs==0.8.2
+pyproj==3.8.0
+pytest==9.2.0

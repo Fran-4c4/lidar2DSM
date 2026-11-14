@@ -1,0 +1,8 @@
+{
+  "inputs": ["../data/lidar"],
+  "mode": "ndsm",
+  "resolution_m": 0.5,
+  "radius_m": 1.0,
+  "ground_classes": [2],
+  "vertical_reference": "unknown"
+}
