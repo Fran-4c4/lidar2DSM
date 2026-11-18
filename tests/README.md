@@ -12,4 +12,5 @@ NaN, negative nDSM, multiple files, CRS, limits, failures and overwrite protecti
 Docker, PDAL, networking, databases and other checkouts are not required.
 
 External real-data checks are additional. Record provenance, parameters and
-evidence in `docs/validation.md` without adding large datasets to Git.
+evidence in a dedicated report under `docs/validation/` without adding large
+datasets to Git, then link it from `docs/validation.md`.

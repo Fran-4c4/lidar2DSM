@@ -1,57 +1,74 @@
-# Validation performed
+# Validation
 
-Local checks on 2026-11-14, version 0.1.0:
+Validation combines deterministic automated tests, distribution checks and
+optional case studies with external point clouds. These layers answer different
+questions and must not be treated as interchangeable evidence.
 
-| Check | Result |
-|---|---|
-| Python 3.12 suite on Windows, fresh virtual environment | 51 tests passed. |
-| Same suite in a Linux container | 51 tests passed; pytest cache warning from read-only test mount. |
-| Docker image from digest-pinned public Python base | Built successfully, without private images. |
-| Synthetic Docker conversion with networking disabled | Correct DTM/DSM/nDSM; no connection required. |
-| Wheel installed into a fresh environment from another directory | demo/validate/run checked with isolated Python. |
-| Four local skills | Frontmatter and structure checked with the skill validator. |
-| Real LAZ files from the 3dfier Delft example | Both crops converted at 0.5 m; details below. |
+## Automated tests
 
-Synthetic tests check known elevations, IDW, sub-metre resolution, multiple
-files, filters, NoData, non-UTM CRS, compressed LAZ reading, GIS environment
-restoration and consistency across window/read-batch sizes.
+The test suite creates its own LAS fixtures in temporary directories. It checks:
 
-## Delft
+- known DTM, DSM and nDSM elevations;
+- IDW support, coincident points and unsupported cells;
+- 0.25, 0.5, 1 and 2 metre resolutions;
+- common CRS, transform and dimensions across outputs;
+- class filters, withheld points, NoData and negative nDSM values;
+- window and read-batch independence, including crop halos;
+- multiple inputs, configuration errors and overwrite protection.
 
-External inputs: `ahn3_cropped_1.laz` and `ahn3_cropped_2.laz` from
-`example_data/ahn3` in [3dfier](https://github.com/tudelft3d/3dfier).
-Neither those files nor real-data outputs are distributed in this repository.
+Run it from a development installation:
 
-The crop headers do not declare a CRS. `crs_if_missing: "EPSG:28992"` was
-explicitly assigned after checking the BGT footprint CRS in the same package
-and AHN's RD reference. [Official AHN documentation](https://www.ahn.nl/dataroom)
-describes its references. This test retained `vertical_reference: "unknown"`
-without certifying the crops' vertical reference or transforming coordinates.
+```bash
+python -m pip install -e ".[test]"
+python -m pytest -q
+```
 
-Parameters: `mode=ndsm`, `resolution_m=0.5`, `radius_m=1`, ground class 2,
-all classes for DSM, and no subsequent gap filling.
+GitHub Actions runs the same suite with Python 3.12 on Windows and Linux. The
+tests verify numerical and serialization invariants, but they do not certify
+the accuracy, classification or vertical reference of an external survey.
 
-| Measure | Result |
-|---|---|
-| Points read | 848942 |
-| Withheld points excluded | 0 |
-| Common grid | 529 × 458 pixels, 0.5 m/pixel |
-| Cells with ground points inside the cell | 48.85% |
-| DTM coverage with support within 1 m | 61.95% |
-| DSM coverage | 88.51% |
-| nDSM coverage | 60.49% |
-| DTM elevation range | −0.521 to 2.297 m |
-| nDSM range | −0.425 to 23.054 m |
+## Distribution and container checks
 
-Gaps remain NoData: increasing grid density does not create ground observations
-beneath buildings. Review support using `ground_count` and `dtm_support`.
-Negative nDSM values are retained for inspection. This establishes successful
-reading/rasterization, alignment and traceability, **not** vertical accuracy
-against independent controls or sufficient support beneath every roof.
+Build a wheel and install it into a fresh environment to detect accidental
+imports from the repository root:
 
-## Limits of this evidence
+```bash
+python -m pip wheel --no-deps . --wheel-dir dist
+python -m pip install dist/lidar2dsm-*.whl
+lidar2dsm --version
+```
 
-Full large-survey processing, spatial use of the COPC index, ground classification,
-datum correction, macOS and COG output have not been tested. GitHub CI is prepared
-but will only run there after publication. Main tested versions are recorded in
-`constraints/python312.txt`; other platforms need their own validation.
+The Docker image should build from public inputs and run the synthetic example
+without network access:
+
+```bash
+docker build -t lidar2dsm:local .
+docker run --rm --network none -v "$PWD:/data" \
+  lidar2dsm:local demo --output /data/work/docker-demo
+docker run --rm --network none -v "$PWD:/data" \
+  lidar2dsm:local run /data/work/docker-demo/config.json \
+  --output /data/outputs/docker-demo
+```
+
+Inspect the resulting GeoTIFF CRS, transform, dimensions, NoData values,
+elevations and `run.json`; an exit code alone is insufficient evidence.
+
+## External-data case studies
+
+Real datasets are optional integration evidence. They are not part of the test
+suite and are not distributed with this repository. Each report records source,
+parameters, observed results and the limits of the conclusions:
+
+- [Delft 3dfier sample](validation/delft-3dfier.md)
+- [PNOA coastal urban tiles](validation/pnoa-coastal-urban.md)
+
+These reports demonstrate that particular files were read and rasterized under
+specific parameters. They do not establish national-scale performance, survey
+accuracy, correct ground classification or a certified vertical datum.
+
+## Evidence still missing
+
+The project has not yet established national-scale processing, spatial use of
+the COPC index, automatic ground classification, datum correction, certified
+COG output or macOS CI. Dependency versions used for the main Python 3.12 checks
+are recorded in [`constraints/python312.txt`](../constraints/python312.txt).

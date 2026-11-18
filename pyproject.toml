@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Local LAS/LAZ to aligned DTM, DSM and nDSM GeoTIFFs"
 readme = "README.md"
 requires-python = ">=3.12"
+authors = [{ name = "Francisco Rafael Moreno Santana" }]
 license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [
@@ -20,6 +21,11 @@ test = ["pytest>=9,<10"]
 
 [project.scripts]
 lidar2dsm = "lidar2dsm.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Fran-4c4/lidar2DSM"
+Repository = "https://github.com/Fran-4c4/lidar2DSM"
+Issues = "https://github.com/Fran-4c4/lidar2DSM/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

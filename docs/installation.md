@@ -37,7 +37,7 @@ docker run --rm -v "$PWD:/data" lidar2dsm:local run /data/work/docker-demo/confi
 These volume examples use Bash. In PowerShell, use `${PWD}` for the volume path.
 For real data, mount inputs/configuration read-only and only the output location
 read-write. Conversion needs no network. Building downloads the base image and
-dependencies. See [validation](validation.md) for the checks performed.
+dependencies. See [validation](validation.md) for the verification strategy.
 
 ## Troubleshooting
 

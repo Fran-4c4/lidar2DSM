@@ -91,5 +91,9 @@ DSM uses the maximum of points inside each cell, without spreading them by radiu
 
 Tests check known elevations, IDW, 0.25/0.5/1/2 m resolutions, nDSM alignment,
 window boundaries, filters, CRS handling and errors. The included CI runs on
-Windows and Linux. Container checks and external datasets are recorded
-separately in the [validation report](docs/validation.md).
+Windows and Linux. See the [validation guide](docs/validation.md) for the scope
+of those checks and separate real-data case studies.
+
+## Author
+
+[Francisco Rafael Moreno Santana](https://github.com/Fran-4c4)

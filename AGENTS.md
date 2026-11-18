@@ -18,17 +18,6 @@ agent instructions in English.
 - Keep application licensing in `LICENSE` and package metadata. Keep dependency
   notices in `THIRD_PARTY.md`; do not repeat licensing text in usage guides.
 
-## Portable skills
-
-Read the relevant skill before working on its area:
-
-| Work | Skill |
-|---|---|
-| Rasterization, IDW, counts, windows and nDSM | [raster-pipeline](.agents/skills/raster-pipeline/SKILL.md) |
-| CRS, units, elevations and grids | [crs-metric-calculations](.agents/skills/crs-metric-calculations/SKILL.md) |
-| Fields, parsers, defaults and validation | [document-contract-fields](.agents/skills/document-contract-fields/SKILL.md) |
-| Inspecting data, logs or large trees | [command-output-safety](.agents/skills/command-output-safety/SKILL.md) |
-
 ## Invariants
 
 - `Config` owns fields and defaults. Reject invalid values; never silently

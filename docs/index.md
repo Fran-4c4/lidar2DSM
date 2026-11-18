@@ -9,7 +9,7 @@ before choosing an output model.
 4. [Outputs](outputs.md): GeoTIFFs, counts, NoData and manifests.
 5. [Using the rasters](raster_usage.md): terrain, surface and relative-height data.
 6. [Example datasets](example_catalog.md): original synthetic data and Delft.
-7. [Validation](validation.md): evidence and limits of the checks performed.
+7. [Validation](validation.md): verification strategy, evidence and limitations.
 8. [Status and improvements](roadmap.md): implemented and planned capabilities.
 
 Agent entry point: [AGENTS.md](../AGENTS.md). Dependencies:
