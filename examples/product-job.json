@@ -1,0 +1,17 @@
+{
+  "repository": "repository.json",
+  "release_id": "example-r1",
+  "products": ["dtm", "dsm", "ndsm"],
+  "selection": {
+    "bbox": [-15.46, 28.12, -15.44, 28.14],
+    "bbox_crs": "EPSG:4326",
+    "snap": "outward"
+  },
+  "processing": {
+    "radius_m": 1.0,
+    "idw_power": 2.0,
+    "ground_classes": [2, 9],
+    "dsm_classes": null,
+    "overview_min_size": 512
+  }
+}

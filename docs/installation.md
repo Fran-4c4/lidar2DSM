@@ -19,10 +19,25 @@ To install without tests: `python -m pip install .`. After installation,
 | `demo --output NEW_DIRECTORY` | Generate synthetic LAS, configuration and expected values. |
 | `validate CONFIG.json` | Check headers, paths, CRS and the expected grid. |
 | `run CONFIG.json --output NEW_DIRECTORY` | Generate rasters and the report. |
+| `repository init REPOSITORY.json` | Create or validate source, product and catalogue structure. |
+| `repository ingest REPOSITORY.json INPUT [--mode copy\|move]` | Incrementally verify and transfer a delivery. |
+| `repository import IMPORT_JOB.json` | Run a reproducible JSON import request. |
+| `repository generate PRODUCT_JOB.json` | Generate and register versioned COG tiles. |
 | `--version` | Display the package version. |
 
 `inputs` paths are relative to the JSON file; `--output` is relative to the
 calling directory. See the [configuration contract](configuration.md).
+Repository paths and grid fields use their separate
+[tiled-repository contract](tiled_repository.md).
+
+Windows users running a downloaded source checkout may instead start with
+`start_lidar2dsm.cmd`. The launcher checks dependencies and creates or opens the
+same JSON contracts used by these commands; it does not define separate defaults.
+`python start_lidar2dsm.py` also delegates automatically to the existing project
+`.venv`; it does not inspect or reinstall against the system Python on each run.
+On Windows, action selection uses one key without Enter and JSON files use the
+native file picker. Direct `create`, `import` and `generate` launcher arguments
+are available when standard input is unavailable.
 
 ## Optional Docker
 

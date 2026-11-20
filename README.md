@@ -48,6 +48,32 @@ Open `outputs/demo/dtm.tif`, `dsm.tif` or `ndsm.tif` in QGIS and review
 all at 25 m. The nDSM should contain 16 cells at 4 m and 48 cells at 0 m.
 Each execution requires a new output directory.
 
+## Guided repository workflow
+
+From a source checkout, run the dependency-aware launcher:
+
+```text
+start_lidar2dsm.cmd
+```
+
+It checks Python and required packages, then offers three actions: create a
+repository, import a LAS/LAZ delivery, or generate versioned DTM/DSM/nDSM COG
+tiles. Each action reads or creates a JSON contract, so the same operation can
+be repeated later from the CLI without the menu.
+
+On Windows, the `.cmd` launcher always uses the project's `.venv`. Running
+`python start_lidar2dsm.py` is also supported: the system Python delegates to
+`.venv` immediately when it already exists, so dependencies are not requested
+again on every execution.
+
+On Windows, menu actions use a single key and native JSON file pickers. The
+same launcher also supports non-interactive commands:
+
+```powershell
+start_lidar2dsm.cmd import C:\path\to\import-job.json
+start_lidar2dsm.cmd generate C:\path\to\product-job.json
+```
+
 ## Your own data
 
 ```json
@@ -78,6 +104,8 @@ DSM uses the maximum of points inside each cell, without spreading them by radiu
 - [Documentation index](docs/index.md), [installation and Docker](docs/installation.md).
 - [Configuration contract](docs/configuration.md) and [algorithms](docs/architecture.md).
 - [Outputs and coverage](docs/outputs.md), [using the rasters](docs/raster_usage.md).
+- [Tiled source repositories](docs/tiled_repository.md): initialize, ingest and
+  generate versioned grid-aligned collections without city-based paths.
 - [Example datasets](docs/example_catalog.md) and [limitations](docs/roadmap.md).
 - [Tests](tests/README.md), [contributing](CONTRIBUTING.md), [dependencies](THIRD_PARTY.md).
 - Agents: [AGENTS.md](AGENTS.md); Claude: [CLAUDE.md](CLAUDE.md).

@@ -1,0 +1,5 @@
+{
+  "repository": "repository.json",
+  "input_directory": "../data/incoming-lidar",
+  "transfer_mode": "copy"
+}
