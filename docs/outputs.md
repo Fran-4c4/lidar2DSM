@@ -14,7 +14,13 @@ Each execution directory contains `run.json` and the GeoTIFFs for its mode.
 | `run.json` | Effective parameters, sources, grid, version, coverage, warnings and status. |
 
 All rasters share CRS, transform and dimensions and use tiled, compressed
-GeoTIFF. Unsupported elevations use **NaN as NoData**. Count rasters have no
+GeoTIFF. Elevation rasters include internal power-of-two overviews for fast
+display; their factors and average resampling method are recorded in `run.json`.
+These reduced levels are visual derivatives. The full-resolution band remains
+authoritative and unchanged. Count rasters have no overviews because averaging
+or summing would introduce a different count contract.
+
+Unsupported elevations use **NaN as NoData**. Count rasters have no
 NoData value: 0 is a valid count meaning no points or no support.
 
 `ground_count=0` with `dtm_support>0` means terrain was computed from neighbours
@@ -36,4 +42,4 @@ preserved with warnings; `complete` does not mean full coverage or fitness for
 every application. Existing directories are never overwritten, including those
 from failed runs.
 
-This version does not produce certified COGs, overviews, terrain tiles or web services.
+This version does not produce certified COGs, terrain tiles or web services.

@@ -19,7 +19,8 @@ flowchart TD
     G --> K[Write GeoTIFF windows]
     I --> K
     J --> K
-    K --> L[Validate grid, coverage and run.json]
+    K --> L[Build internal elevation overviews]
+    L --> M[Validate grid, overviews, coverage and run.json]
 ```
 
 ## Grid
@@ -55,6 +56,12 @@ for reviewing inconsistent sources, filtering or noise. A surface and terrain
 from different acquisition dates can also produce real differences.
 
 ## Memory and disk
+
+After the authoritative raster windows close, elevation products receive
+power-of-two internal overviews down to the configured display target. Average
+resampling reduces display noise while retaining broad slopes; it is never used
+for analysis or written back into the base-resolution band. Count products do
+not receive overviews because they have no single valid display aggregation.
 
 Inputs are read in `chunk_points` batches. Temporary records store X/Y/Z/class
 as float64 (32 bytes per retained point), plus in-memory indices and trees.

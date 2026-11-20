@@ -13,6 +13,7 @@ def test_defaults_owned_by_config():
     assert config.ground_classes == (2,)
     assert config.dsm_classes is None
     assert config.vertical_reference == "unknown"
+    assert config.overview_min_size == 512
 
 
 @pytest.mark.parametrize("field,value", [
@@ -23,7 +24,9 @@ def test_defaults_owned_by_config():
     ("inputs", ("",)), ("inputs", "in.las"), ("ground_classes", ()),
     ("ground_classes", (2, 2)), ("ground_classes", (True,)),
     ("dsm_classes", (256,)), ("dsm_classes", ()), ("vertical_reference", ""),
-    ("crs_if_missing", ""), ("bounds", (1, 0, 0, 1)),
+    ("crs_if_missing", ""), ("overview_min_size", 0),
+    ("overview_min_size", True), ("overview_min_size", 1.5),
+    ("bounds", (1, 0, 0, 1)),
     ("bounds", (0, 0, float("nan"), 1)), ("bounds", (0, 0, True, 1))])
 def test_invalid_values_rejected(field, value):
     with pytest.raises(ValueError):

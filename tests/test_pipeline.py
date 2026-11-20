@@ -13,7 +13,7 @@ from rasterio.windows import Window
 from lidar2dsm.cli import main
 from lidar2dsm.config import Config, load_config
 from lidar2dsm.demo import create_demo
-from lidar2dsm.engine import raster_window, run
+from lidar2dsm.engine import _overview_factors, raster_window, run
 from lidar2dsm.grid import Grid, inspect
 
 
@@ -69,6 +69,31 @@ def test_requested_resolution_is_not_clamped(tmp_path, resolution):
         assert affine.a == resolution
         assert affine.e == -resolution
         assert array.shape == (round(4 / resolution), round(4 / resolution))
+
+
+def test_elevation_overviews_are_internal_display_levels_only(tmp_path):
+    create_demo(tmp_path / "demo")
+    config = replace(load_config(tmp_path / "demo/config.json"), overview_min_size=2)
+    result = run(config, tmp_path / "out", progress=lambda _: None)
+    assert _overview_factors(8, 8, 2) == [2, 4]
+    assert _overview_factors(8, 8, None) == []
+    for name in ("dtm", "dsm"):
+        with rasterio.open(tmp_path / f"out/{name}.tif") as raster:
+            assert raster.shape == (8, 8)
+            assert raster.overviews(1) == [2, 4]
+            assert raster.tags(ns="rio_overview")["resampling"] == "average"
+            base = raster.read(1)
+            if name == "dtm":
+                np.testing.assert_array_equal(base, 25)
+            else:
+                expected = np.full((8, 8), 25, dtype="float32")
+                expected[2:6, 2:6] = 29
+                np.testing.assert_array_equal(base, expected)
+        assert result["outputs"][name]["overview_factors"] == [2, 4]
+        assert result["outputs"][name]["overview_resampling"] == "average"
+    for name in ("point_count", "ground_count", "dsm_count", "dtm_support"):
+        with rasterio.open(tmp_path / f"out/{name}.tif") as raster:
+            assert raster.overviews(1) == []
 
 
 def test_exact_ground_duplicates_and_idw_weighting():

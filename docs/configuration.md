@@ -20,6 +20,7 @@ describes that contract; examples do not define competing defaults.
 | `tile_pixels` | Positive integer; default 256. Bucket/window edge length, without changing results. |
 | `max_tile_points` | Positive integer; default 2000000. Limit per bucket and per window including halo; exceeding it is an explicit error. |
 | `max_cells` | Positive integer; default 100000000. Width × height limit checked before processing. |
+| `overview_min_size` | Positive integer target for the longest side of internal elevation overviews; default 512. Power-of-two levels are generated until reaching that size when possible. `null` disables them. Overviews use average resampling for display and never alter base-resolution cells. Count rasters do not receive overviews. |
 
 Booleans in numeric fields, NaN, infinities and out-of-domain values are rejected.
 Withheld points are always excluded; other flags do not filter points.

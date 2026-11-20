@@ -36,6 +36,11 @@ class Config:
     max_tile_points: positive integer safety limit for all points in a window
         plus its DTM halo. Exceeding it fails explicitly, without subsampling.
     max_cells: positive integer limit on raster width*height; fails before work.
+    overview_min_size: None disables internal elevation overviews. Otherwise a
+        positive integer pixel target; power-of-two levels are generated until
+        the longest overview side is at or below this target when possible.
+        Overviews use average resampling for display only. They never replace
+        or alter base-resolution elevation cells or count rasters.
 
     All numeric fields reject booleans; every unknown key is an error. Changing
     grid/filters/IDW affects elevations, coverage and downstream building bases;
@@ -58,6 +63,7 @@ class Config:
     tile_pixels: int = 256
     max_tile_points: int = 2_000_000
     max_cells: int = 100_000_000
+    overview_min_size: int | None = 512
 
     def __post_init__(self):
         if not isinstance(self.inputs, tuple) or not self.inputs or any(
@@ -73,6 +79,10 @@ class Config:
         for name in ("chunk_points", "tile_pixels", "max_tile_points", "max_cells"):
             if type(getattr(self, name)) is not int or getattr(self, name) < 1:
                 raise ValueError(f"{name} must be a positive integer")
+        if self.overview_min_size is not None and (
+            type(self.overview_min_size) is not int or self.overview_min_size < 1
+        ):
+            raise ValueError("overview_min_size must be null or a positive integer")
         for name in ("ground_classes", "dsm_classes"):
             values = getattr(self, name)
             if values is None and name == "dsm_classes":

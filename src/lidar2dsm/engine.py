@@ -9,6 +9,7 @@ import tempfile
 import laspy
 import numpy as np
 import rasterio
+from rasterio.enums import Resampling
 from rasterio.windows import Window
 from scipy.spatial import cKDTree
 
@@ -19,6 +20,33 @@ from .grid import inspect
 
 def _dump(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+
+
+def _overview_factors(width: int, height: int, minimum_size: int | None) -> list[int]:
+    """Return power-of-two display levels without changing the base grid.
+
+    ``minimum_size`` targets the longest side; it is not a crop or a new base
+    resolution. None and rasters already within the target produce no levels.
+    """
+    longest = max(width, height)
+    if minimum_size is None or longest <= minimum_size:
+        return []
+    factors, factor = [], 2
+    while factor <= longest:
+        factors.append(factor)
+        if math.ceil(longest / factor) <= minimum_size:
+            break
+        factor *= 2
+    return factors
+
+
+def _build_elevation_overviews(path: Path, factors: list[int]) -> None:
+    """Append average-resampled internal IFDs for visual clients only."""
+    if not factors:
+        return
+    with rasterio.open(path, "r+") as raster:
+        raster.build_overviews(factors, Resampling.average)
+        raster.update_tags(ns="rio_overview", resampling="average")
 
 
 def _spool(paths, grid, config, directory):
@@ -227,12 +255,25 @@ def _run(config: Config, output: Path, progress=print):
                 count = summary["valid_cells"]
                 summary["mean"] = summary.pop("sum") / count if count else None
                 summary["coverage_fraction"] = count / (grid.width * grid.height)
+                elevation = name in ("dtm", "dsm", "ndsm")
+                overview_factors = (_overview_factors(
+                    grid.width, grid.height, config.overview_min_size
+                ) if elevation else [])
+                if elevation:
+                    _build_elevation_overviews(output / f"{name}.tif", overview_factors)
                 manifest["outputs"][name] = {"file": f"{name}.tif", **summary}
+                if elevation:
+                    manifest["outputs"][name].update({
+                        "overview_factors": overview_factors,
+                        "overview_resampling": "average" if overview_factors else None,
+                    })
                 # Validate the actual serialized product before reporting success.
                 with rasterio.open(output / f"{name}.tif") as raster:
                     if (raster.transform != grid.transform or raster.shape != (grid.height, grid.width)
                             or not CRS_equal(raster.crs, crs)):
                         raise ValueError(f"Serialized grid/CRS mismatch in {name}")
+                    if raster.overviews(1) != overview_factors:
+                        raise ValueError(f"Serialized overview mismatch in {name}")
                 if name in ("dtm", "dsm", "ndsm") and not count:
                     raise ValueError(f"No supported cells in {name}; check classes, bounds and radius")
                 if name in ("dtm", "dsm", "ndsm") and count < grid.width * grid.height:
